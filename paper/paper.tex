@@ -314,9 +314,32 @@ $N$ 为这一时间序列的长度。
 	\label{eqn:SVD_V} 
 	\textbf{V} = (V_1, \cdots, V_L)
 \end{equation}
+在此基础上我们取前 $r$ 项奇异值来重构时间序列。
+\begin{equation}
+	\label{eqn:ssa-x-hat}
+	\hat{\textbf{X}} = \Sigma_{i=1}^r \textbf{$X_i$}
+\end{equation}
+
+\begin{equation}
+	\label{eqn:ssa-fitting}
+	h_k = 
+	\begin{cases}
+	\frac{1}{k+1} \sum_{m=1}^{k+1} \hat{x}_{m, k-m+2} & 0 \leq k < L - 1, \\
+	\frac{1}{L} \sum_{m=1}^L \hat{x}_{m, k-m+2} & L - 1 \leq k < K, \\
+	\frac{1}{T-k} \sum_{m=k-K^*+2}^{N-k+1} \hat{x}_{m, k-m+2} & K^* - 1 \leq k < T, \\
+	\end{cases}
+\end{equation}
+这里 $L^* = \textrm{min}(L, K), K^* = \textrm{max}(L, K)$ ；而 $x_{ij}^* = x_{ij}$ ，若 $L<K$ ，反之 $x_{ij}^* = x_{ji}$ 。
 \\
-\indent 于是我们就可以利用分解的结果计算 LRF 的系数。
-系数 $a_i$ 由如下方法确定
+由于我们取了前 $r$ 项奇异值来重构时间序列，在保留了主要趋势和周期部分的同时，滤去了高频的噪音，得到了比较好的拟合结果。
+
+\section{预测}
+预测模型以LRF（线性递推公式）为核心。即，我们以
+\begin{equation}
+	\label{eqn:ssa_prediction}
+	\tilde{h}_N = \Sigma_{i=1}^{L-1} a_i \cdot h_{N-L+i} 
+\end{equation}
+作为预测的第 $(N+1)$ 个量。 LRF 的系数 $a_i$ 由如下方法确定
 \begin{align}
 	\textrm{R} &= (a_{L-1}, \cdots, a_1)^T \\
 	           &= \frac{1}{1-\nu^2} \Sigma_{i=1}^r \pi_i U_i^\nabla \label{eqn:R_a}
@@ -326,14 +349,6 @@ $N$ 为这一时间序列的长度。
 	\label{eqn:ssa_nu^2}
 	\nu^2 = \Sigma_{i=1}^r \pi_i^2
 \end{equation}
-
-\section{预测}
-至于预测的部分我们使用线性递推公式
-\begin{equation}
-	\label{eqn:ssa_prediction}
-	\tilde{f}_N = \Sigma_{i=1}^{L-1} a_i \cdot f_{N-L+i} 
-\end{equation}
-作为预测的第 $(N+1)$ 个量。
 为了得到之后的预测结果，我们将 $\tilde{f}_N$ 加入到原先的 $F$中，即
 \begin{equation}
 	\label{eqn:ssa_new_f}
@@ -398,10 +413,7 @@ $N$ 为这一时间序列的长度。
 即便如此，除了 200 分钟开始以外剩下的初始值都能够保证小于 $10\%$ 的预测精度，可谓是很不错的。
 
 \section{SSA算法优化}
-\indent 由于SSA算法主要是用前面的数据去预测。所以前面已知数据的质量至关重要。
-而对于实际上给出的数据，往往最开始的若干个数据是比较不稳定的,因为仅由这几个数据，很难反映出此时时间序列的变化趋势。如果直接使用，会对后面的预测造成很大的影响。
-为了解决这个问题，我们对SSA算法做了如下优化。\\
-\indent 首先我们还是由时间序列F找出其LRF系数。接下来，由于第一个窗口$F_1$的不稳定性较大，所以我们选择从$f_1$的前k项开始进行预测，即：
+\indent SSA的预测算法中，每一项由前面的$L - 1$个数据完全决定。然而在重建时间序列的过程中，我们事实上是对$\hat{X}$的斜对角元素取平均值，因此重建的时间序列的开始和末尾部分的数据较中间部分的稳定性要差。为了弥补这一缺点，我们可以从重构序列的更靠前的位置开始使用LRF，并用得到的结果取代原来的重构序列的末尾部分。
 \begin{equation}
 f_{N-k+1}=\sum_{i=1}^{L-1}a_if_{N-L-k+i}
 \end{equation}
