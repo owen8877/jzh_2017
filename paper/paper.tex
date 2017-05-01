@@ -588,7 +588,7 @@ f_{N-k+1}=\sum_{i=1}^{L-1}a_if_{N-L-k+i}
 
 \part{对于方案的评估}
 \section{方案的可靠性分析}
-\indent 首先对于SSA算法的稳定性，根据第7节数值分析的数据可以看出，对于不同的给定初值，SSA算法所给出的预测时间序列均在实际时间序列附近，这表明SSA算法具有很好的稳定性，它不会因为初值的微小变动而在预测中产生巨大的误差。
+\indent 首先对于SSA算法的稳定性，根据第7节数值分析的数据可以看出，对于不同的给定初值，SSA算法所给出的预测时间序列均在实际时间序列附近，这表明SSA算法具有很好的稳定性，它不会因为初值的微小变动而在预测中产生巨大的误差。\\
 \indent 其次对与SSA算法的窗口长度的选择，因为ATM交易状态是一个有弱周期的时间序列。所以当窗口长度为周期的整数倍时，才能够较好的保留原时间序列的周期信息。通过选择不同的窗口长度进行模拟，我们也得出了同样的结论。最终通过模拟，我们发现窗口长度定为1天时，预测的效果相对较好，所以我们将其定为最佳窗口长度。
 \section{与其他方法的比较}
 \subsection{与相邻作差法的比较}
@@ -637,5 +637,21 @@ f_{N-k+1}=\sum_{i=1}^{L-1}a_if_{N-L-k+i}
 \end{equation}
 其中k>0，b均为常值。\\
 这样我们可以进一步精细化我们对于警报值a的估计，从而提高击中率。	
+
+\part{总结}
+\indent 为了满足日益繁重的资金交易业务，银行大量引入了ATM系统。然而与此同时也产生ATM交易状态的监测问题。
+为了解决这个问题，我们将问题分解为时间序列的预测问题以及异常点的判断问题。
+我们运用SSA算法来做时间序列的预测，通过对比分析，效果要好于邻近作差法以及傅里叶变换的算法。同时我们还对SSA算法做了一些优化，使其预测效果更好。
+而对于异常点的判断，我们提出了自适应带状过滤模型以及信号检测理论模型。\\
+\indent 针对我们的模型，我们通过数值模拟的方法进行了检验，得到了不错的识别突变点的结果。更进一步的我们对于SSA算法的稳定性进行了进一步的验证。说明这种算法在具体应用中可信度还是很高的。最后我们考虑了在后续完善方案的过程中，我们可能需要测定的一些观测指标，以及如何通过这些指标进一步优化我们的算法。
+
+\part*{参考文献}
+\flushleft
+$\left[1\right]$Nina Golyandina, Vladimir Nekrutkin, Anatoly A Zhigljavsky：《Analysis of Time Series Structure: SSA and Related Techniques》\\
+$\left[2\right]$K. Afshar*, N. Bigdeli：《Data analysis and short term load forecasting in Iran electricity
+market using singular spectral analysis (SSA)》\\
+$\left[3\right]$杨臻明, 岳继光, 王晓保, 萧蕴诗：《基于独立成分分析的含噪声时间序列预测》\\
+$\left[4\right]$黄海辉：《一种周期时间序列的预测算法》\\
+$\left[5\right]$Tanner Jr., Wilson P.; Higashi, M; Otsubo, R; Sakuma, T; Oyama, N; Tanaka, R; Iihara, K; Naritomi, H; Minematsu, K; John A. Swets. 《A decision-making theory of visual detection》. Psychological Review. 1954-11, 61 (6): 401–409 [2009-06-24]. doi:10.1037/h0058700. ISSN 0195-6108. PMID 17296997\\
 
 \end{document}
