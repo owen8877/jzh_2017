@@ -19,7 +19,8 @@ for index = 1:length(amount)
     if abs(Y(index)) < 0.3e6
         Y(index) = 0;
     end
-en
+end
+
 figure;
 exp_amount = abs(ifft(Y));
 day = 27;
