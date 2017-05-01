@@ -200,13 +200,18 @@ ATM 业务状态随着时间是不断变化的；这种变化不仅仅是发生�
 \section*{小结}
 通过上面的讨论，我们对这三项指标反应的 ATM 交易状态特性有了初步的了解，提取出了每个指标的特征参数，并对每个指标中出现奇异点的原因进行了分析。
 
-\part{交易状态异常检测方案}
-\section{引述}
-\indent 通过分析数据，我们发现交易状态关于时间有明显的周期性趋势，但在不同的周期中，也有一些差异。要找出异常点，从来理论上来说，就是要找到一个对三个指标进行预测的模型，并将实际值与预测值相比较，当误差超过预先设定的阈值时，我们就认为出现了异常点。经过比较不同算法的优劣，我们最终采用了SSA算法作为我们的预测算法。  \\
-\indent 对于我们研究的这三个指标，我们可以将它们看成是一串时间序列$F=(f(t_0),f(t_1),....,f(t_N-1))$，其中f表示B(t)，S(t)，R(t)。$N$为这一时间序列的长度。通过前面的分析，我们知道这串序列有一个弱周期T=1天。我们要做的就是通过目前的数据去预测短期的各项指标值。
-
 \part{基于SSA算法的含噪声时间序列预测}
-\section*{Symbols}
+\section{引述}
+\indent 通过分析数据，我们发现交易状态关于时间有明显的周期性趋势，但在不同的周期中，也有一些差异。
+要找出异常点，从来理论上来说，就是要找到一个对三个指标进行预测的模型，并将实际值与预测值相比较；
+当误差超过预先设定的阈值时，我们就认为出现了异常点。
+经过比较不同算法的优劣，我们最终采用了SSA算法作为我们的预测算法。
+\\
+\indent 对于我们研究的这三个指标，我们可以将它们看成是一串时间序列 $F=(f_0, f_1, \cdots, f_{N-1})$ ，其中 $f \in \{B, S, R\}$ 。
+$N$ 为这一时间序列的长度。
+通过前面的分析，我们知道这串序列有一个弱周期 1 天 。
+我们要做的就是通过目前的数据去预测短期的各项指标值。
+\section*{符号表}
 \begin{table}[H]
 	\centering
 	\caption{}
@@ -215,65 +220,65 @@ ATM 业务状态随着时间是不断变化的；这种变化不仅仅是发生�
 		\hline
 		符号 & 含义 & 备注 \\
 		\hline
-		$L$ & windows length & \\
-		$N$ & the sample numbers & \\
-		$f_i$ & the value of f at time i & $f \in \{B, S, R\}$ \\
-		$\textbf{X}$ & trajectory matrix & \\
-		$d$ & number of non-zero characters & \\
-		$r$ & number of primary singular values & \\
-		$a_i$ & coeffiencients of LRF & \\
+		$L$ & 窗口长度 & \\
+		$N$ & 总样本点数量 & \\
+		$f_i$ & 量 $f$ 在 时间 $t_i$ 处所取的值 & $f \in \{B, S, R\}$ \\
+		$\textbf{X}$ & 轨道矩阵 & \\
+		$d$ & \textbf{X} 的非零奇异值个数 & \\
+		$r$ & \textbf{X} 的主要成分奇异值个数 & \\
+		$a_i$ & LRF 系数 & \\
 		\hline
 	\end{tabular} \\
 \end{table}
-\section{时间序列的分解}
-\subsection{Trajectory}
+\section{轨道矩阵}
+首先我们按照窗口长度 $L = 1440$ 将时间序列拆为若干依次推后的小段
 \begin{equation}
 	\label{eqn:F_i}
 	F_i = (f_{i-1}, \cdots, f_{i+L-2})^T  (1 \leq i \leq K = N - L + 1)
 \end{equation}
-
+我们将每个 $F_i$ 重新组合，得到轨道矩阵 $\textbf{X}$
 \begin{equation}
 	\label{eqn:X}
 	\textbf{X} = (F_1, \cdots, F_K)
 \end{equation}
 
-\subsection{SVD}
-
+\section{时间序列的奇异值分解}
+我们对轨道矩阵 $\textbf{X}$ 进行奇异值分解，以得到各个不同的强度对应奇异值的贡献。
+首先计算
 \begin{equation}
 	\label{eqn:S}
 	S = \textbf{X} \textbf{X}^T
 \end{equation}
-
-$S$ has characters $\lambda_i$ and according character vector $U_i$
-
+实对称方阵 $S$ 有特征值 $\lambda_i$ 与对应的特征向量 $U_i$ 。
+由于 $S$ 是实对称的，我们可以取合适的 $U_i$ 使得它们彼此单位正交。
+\\
+\indent 接下来计算 $V_i$ 以及不同奇异值对应的分解矩阵
 \begin{equation}
 	\label{eqn:V_i}
 	V_i = \textbf{X}^T U_i / \sqrt{\lambda_i}
 \end{equation}
-
 \begin{equation}
 	\label{eqn:X_i}
 	\textbf{$X_i$} = \sqrt{\lambda_i} U_i V_i^T
 \end{equation}
-
 \begin{equation}
 	\label{eqn:SVD_expanded}
 	\textbf{X} = \Sigma_{i=1}^d \textbf{$X_i$}
 \end{equation}
-where
+这里 $d$ 指轨道矩阵 $\textbf{X}$ 的非零奇异值的个数，代表的是有贡献的分解矩阵的个数，即
 \begin{equation}
 	\label{eqn:non-zero-char-d}
 	d = max\{i \textbar \lambda_i > 0\}
 \end{equation}
-and we choose $r$ to be less than $d$.
-
-\subsection{Reconstruction}
-based on \ref{eqn:SVD_expanded} we can define
+我们选择从大到小的前 $r$ 个奇异值作为主要的贡献项；
+显然 $r < d$ 。
+\section{时间序列的重建}
+基于式 \ref{eqn:SVD_expanded} 我们可以得到轨道矩阵 $\textbf{X}$ 的 SVD 分解形式
 \begin{equation}
 	\label{eqn:SVD}
 	\textbf{X} = \textbf{U} \Sigma \textbf{V}^T
 \end{equation}
-where
+这里
 \begin{equation}
 	\label{eqn:SVD_U}
 	\textbf{U} = (U_1, \cdots, U_K)
@@ -286,33 +291,34 @@ where
 	\label{eqn:SVD_V} 
 	\textbf{V} = (V_1, \cdots, V_L)
 \end{equation}
-
-def of $a_i$
+\\
+\indent 于是我们就可以利用分解的结果计算 LRF 的系数。
+系数 $a_i$ 由如下方法确定
 \begin{align}
 	\textrm{R} &= (a_{L-1}, \cdots, a_1)^T \\
 	           &= \frac{1}{1-\nu^2} \Sigma_{i=1}^r \pi_i U_i^\nabla \label{eqn:R_a}
 \end{align}
-where $\pi_i$ is the last component of the vector $U_i$, $U_i^\nabla$ is exactly $U_i$ but for the last component, and
+这里 $\pi_i$ 是向量 $U_i$ 的最后一个元素，而 $U_i^\nabla$ 是向量 $U_i$ 除去最后一个元素得到的 $(L-1)$ 维向量，并且
 \begin{equation}
 	\label{eqn:ssa_nu^2}
 	\nu^2 = \Sigma_{i=1}^r \pi_i^2
 \end{equation}
 
-\subsection{prediction}
-as simple as
+\section{预测}
+至于预测的部分我们使用线性递推公式
 \begin{equation}
 	\label{eqn:ssa_prediction}
 	\tilde{f}_N = \Sigma_{i=1}^{L-1} a_i \cdot f_{N-L+i} 
 \end{equation}
-
-Add $\tilde{f}_N$ to $F$, we get
+作为预测的第 $(N+1)$ 个量。
+为了得到之后的预测结果，我们将 $\tilde{f}_N$ 加入到原先的 $F$中，即
 \begin{equation}
 	\label{eqn:ssa_new_f}
 	\tilde{F} = (f_0, \cdots, f_{N-1}, \tilde{f}_N)
 \end{equation}
-use $\tilde{F}$ to generate $\tilde{X}$, and finally iterate.
+用 $\tilde{F}$ 来生成 $\tilde{X}$ ，可以计算得到 $\tilde{f}_{N+1}$ ，于是可迭代得到任意后面的一项。
 
-\part{异常检测模型}
+\part{时间序列异常检测模型}
 当上述的预测步骤给出了未来一定时间的数据趋势后，我们仅需要判断真实值与预测值之间究竟是否存在显著的偏差就可以判断系统是否发生了故障。
 于是我们需要给出，当真实值与预测值偏差多大的时候，前去维修的命中率与虚报率的问题。
 \section*{记号表}
@@ -411,12 +417,12 @@ use $\tilde{F}$ to generate $\tilde{X}$, and finally iterate.
 在这里我们考虑最简单的情形，即求 $p_f + p_h = 1$ 的解。注意到恒等关系 $$\Psi(x) + \Psi(-x) = 1$$ 我们得到
 \begin{equation}
 	\label{eqn:det_a_formula}
-	\frac{a-M}{\sigma} = \frac{a-\tilde{M}}{\tilde{\sigma}}
+	\frac{a-M}{\sigma} = -\frac{a-\tilde{M}}{\tilde{\sigma}}
 \end{equation}
 解得
 \begin{equation}
 	\label{eqn:det_a}
-	a = \frac{\tilde{\sigma}M - \sigma \tilde{M}}{\tilde{\sigma} - \sigma}
+	a = \frac{\tilde{\sigma}M + \sigma \tilde{M}}{\tilde{\sigma} + \sigma}
 \end{equation}
 
 \section{对于结果的分析}
@@ -439,8 +445,8 @@ use $\tilde{F}$ to generate $\tilde{X}$, and finally iterate.
 \hline
 时间段 $i$  & $M$   & $\tilde{M}$ & $\sigma$ & $\tilde{\sigma}$ & $a$    \\
 \hline
-9-23 1   & -0.22 & 51.6        & 2.3     & $4.6^{(*)} $             & 52.04  \\
-23-(9) 2 & 0.024 & 46.3        & 21.7    & 43.4             & 46.252\\
+9-23 1   & -0.22 & 51.6        & 2.3     & $4.6^{(*)} $     & 17.05 \\
+23-(9) 2 & 0.024 & 46.3        & 21.7    & 43.4             & 15.45 \\
 \hline
 \end{tabular}
 \end{table}\\
