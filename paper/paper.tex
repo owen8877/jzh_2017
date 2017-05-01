@@ -311,6 +311,70 @@ Add $\tilde{f}_N$ to $F$, we get
 	\tilde{F} = (f_0, \cdots, f_{N-1}, \tilde{f}_N)
 \end{equation}
 use $\tilde{F}$ to generate $\tilde{X}$, and finally iterate.
+
+\section{异常检测模型}
+我们作出如下假定
+\begin{itemize}
+    \item 对于某一时刻 $t$ ，量 $f(t)$ 的分布服从随 $t$ 变化的正态分布 $N(M(t), \sigma^2(t))$ 。
+    \item 对于某一时刻 $t$ ，量 $f$ 出现异常，异常值 $\tilde{f}(t)$ 的分布服从随 t 变化的正态分布 $N(\tilde{M}(t), \tilde{\sigma}^2(t))$ 。
+    \item 异常情况与正常情况的分布是独立的。
+\end{itemize}
+
+consider given t, M(t) -> M
+
+the stocastic variable $\xi$ describes f , with $\mu$ decribing ~f
+
+\begin{equation}
+	\label{eqn:det_xi}
+	\xi \sim N(M, \sigma^2)
+\end{equation}
+
+\begin{equation}
+	\label{eqn:det_mu}
+	\mu \sim N(\tilde{M}, \tilde{\sigma}^2)
+\end{equation}
+
+alarm level a
+
+false alarm $p_f(a)$
+\begin{align}
+	p_f(a) &= P\{\xi < a\} \\
+		&= \Psi(\frac{a-M}{\sigma}) \label{eqn:det-p_f}
+\end{align}
+
+hit $p_h(a)$
+\begin{align}
+	p_h(a) &= P\{\mu < a\} \\
+		&= \Psi(\frac{a-\tilde{M}}{\tilde{\sigma}}) \label{eqn:det-p_h}
+\end{align}
+
+what is psi
+\begin{equation}
+	\label{eqn:psi}
+	\Psi(x) = \int_{-\infty}^{x} \frac{1}{\sqrt{2\pi}}e^{-\frac{t^2}{2}} dt
+\end{equation}
+
+some pictures describing $p_f$ and $p_h$
+
+want to select the best point (of course in terms of $a$) to raise sensitivity
+
+several ways
+\begin{enumerate}
+	\item minizes $\sqrt{(p_h - 1)^2 + (p_f - 0)^2}$
+	\item satisfies $p_f + p_h = 1$
+	\item maximizes $p_h - p_f$
+\end{enumerate} 
+
+we use the simpliest way 
+\begin{equation}
+	\label{eqn:det_a_formula}
+	\frac{a-M}{\sigma} = \frac{a-\tilde{M}}{\tilde{\sigma}}
+\end{equation}
+solve that
+\begin{equation}
+	a = \frac{\tilde{\sigma}M - \sigma \tilde{M}}{\tilde{\sigma} - \sigma}
+\end{equation}
+
 \section{与其他方法的比较分析}
 \section{对方案可靠性的评估}
 \section{不同突变点原因分析}
@@ -318,4 +382,4 @@ use $\tilde{F}$ to generate $\tilde{X}$, and finally iterate.
 \part{方案的优化及完善}
 
 
-\end{document
+\end{document}
