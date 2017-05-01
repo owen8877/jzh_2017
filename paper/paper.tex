@@ -206,8 +206,111 @@ ATM 业务状态随着时间是不断变化的；这种变化不仅仅是发生�
 \indent 对于我们研究的这三个指标，我们可以将它们看成是一串时间序列$F=(f(t_0),f(t_1),....,f(t_N-1))$，其中f表示B(t)，S(t)，R(t)。$N$为这一时间序列的长度。通过前面的分析，我们知道这串序列有一个弱周期T=1天。我们要做的就是通过目前的数据去预测短期的各项指标值。
 
 \part{基于SSA算法的含噪声时间序列预测}
+\section*{Symbols}
+\begin{table}[H]
+	\centering
+	\caption{}
+	\label{tab:ssa_symbols}
+	\begin{tabular}{ccc}
+		\hline
+		符号 & 含义 & 备注 \\
+		\hline
+		$L$ & windows length & \\
+		$N$ & the sample numbers & \\
+		$f_i$ & the value of f at time i & $f \in \{B, S, R\}$ \\
+		$\textbf{X}$ & trajectory matrix & \\
+		$d$ & number of non-zero characters & \\
+		$r$ & number of primary singular values & \\
+		$a_i$ & coeffiencients of LRF & \\
+		\hline
+	\end{tabular} \\
+\end{table}
 \section{时间序列的分解}
+\subsection{Trajectory}
+\begin{equation}
+	\label{eqn:F_i}
+	F_i = (f_{i-1}, \cdots, f_{i+L-2})^T  (1 \leq i \leq K = N - L + 1)
+\end{equation}
 
+\begin{equation}
+	\label{eqn:X}
+	\textbf{X} = (F_1, \cdots, F_K)
+\end{equation}
+
+\subsection{SVD}
+
+\begin{equation}
+	\label{eqn:S}
+	S = \textbf{X} \textbf{X}^T
+\end{equation}
+
+$S$ has characters $\lambda_i$ and according character vector $U_i$
+
+\begin{equation}
+	\label{eqn:V_i}
+	V_i = \textbf{X}^T U_i / \sqrt{\lambda_i}
+\end{equation}
+
+\begin{equation}
+	\label{eqn:X_i}
+	\textbf{$X_i$} = \sqrt{\lambda_i} U_i V_i^T
+\end{equation}
+
+\begin{equation}
+	\label{eqn:SVD_expanded}
+	\textbf{X} = \Sigma_{i=1}^d \textbf{$X_i$}
+\end{equation}
+where
+\begin{equation}
+	\label{eqn:non-zero-char-d}
+	d = max\{i \textbar \lambda_i > 0\}
+\end{equation}
+and we choose $r$ to be less than $d$.
+
+\subsection{Reconstruction}
+based on \ref{eqn:SVD_expanded} we can define
+\begin{equation}
+	\label{eqn:SVD}
+	\textbf{X} = \textbf{U} \Sigma \textbf{V}^T
+\end{equation}
+where
+\begin{equation}
+	\label{eqn:SVD_U}
+	\textbf{U} = (U_1, \cdots, U_K)
+\end{equation}
+\begin{equation}
+	\label{eqn:SVD_Sigma}
+	\Sigma = diag(\sqrt{\lambda_1}, \cdots, \sqrt{\lambda_K})
+\end{equation}
+\begin{equation}
+	\label{eqn:SVD_V} 
+	\textbf{V} = (V_1, \cdots, V_L)
+\end{equation}
+
+def of $a_i$
+\begin{align}
+	\textrm{R} &= (a_{L-1}, \cdots, a_1)^T \\
+	           &= \frac{1}{1-\nu^2} \Sigma_{i=1}^r \pi_i U_i^\nabla \label{eqn:R_a}
+\end{align}
+where $\pi_i$ is the last component of the vector $U_i$, $U_i^\nabla$ is exactly $U_i$ but for the last component, and
+\begin{equation}
+	\label{eqn:ssa_nu^2}
+	\nu^2 = \Sigma_{i=1}^r \pi_i^2
+\end{equation}
+
+\subsection{prediction}
+as simple as
+\begin{equation}
+	\label{eqn:ssa_prediction}
+	\tilde{f}_N = \Sigma_{i=1}^{L-1} a_i \cdot f_{N-L+i} 
+\end{equation}
+
+Add $\tilde{f}_N$ to $F$, we get
+\begin{equation}
+	\label{eqn:ssa_new_f}
+	\tilde{F} = (f_0, \cdots, f_{N-1}, \tilde{f}_N)
+\end{equation}
+use $\tilde{F}$ to generate $\tilde{X}$, and finally iterate.
 \section{与其他方法的比较分析}
 \section{对方案可靠性的评估}
 \section{不同突变点原因分析}
