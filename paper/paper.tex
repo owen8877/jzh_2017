@@ -312,69 +312,138 @@ Add $\tilde{f}_N$ to $F$, we get
 \end{equation}
 use $\tilde{F}$ to generate $\tilde{X}$, and finally iterate.
 
-\section{异常检测模型}
-我们作出如下假定
+\part{异常检测模型}
+当上述的预测步骤给出了未来一定时间的数据趋势后，我们仅需要判断真实值与预测值之间究竟是否存在显著的偏差就可以判断系统是否发生了故障。
+于是我们需要给出，当真实值与预测值偏差多大的时候，前去维修的命中率与虚报率的问题。
+\section*{记号表}
+\begin{table}[H]
+	\centering
+	\caption{}
+	\label{tab:sdt_symbols}
+	\begin{tabular}{ccc}
+		\hline
+		符号 & 含义 & 备注 \\
+		\hline
+		$M$ & 正常状态下量 $f$ 的期望 & \\
+		$\tilde{M}$ & 异常状态下量 $f$ 的期望 & \\
+		$\sigma$ & 正常状态下量 $f$ 的标准差 & \\
+		$\tilde{\sigma}$ & 异常状态下量 $f$ 的标准差 & \\
+		$a$ & 警报值 & \\
+		$p_h$ & 击中率 & \\
+		$p_f$ & 虚报率 & \\
+		\hline
+	\end{tabular} \\
+\end{table}
+\section{信号检测理论}
+在这部分，我们采用的理论是信号检测理论\footnote{Tanner Jr., Wilson P.; Higashi, M; Otsubo, R; Sakuma, T; Oyama, N; Tanaka, R; Iihara, K; Naritomi, H; Minematsu, K; John A. Swets. A decision-making theory of visual detection.. Psychological Review. 1954-11, 61 (6): 401–409 [2009-06-24]. doi:10.1037/h0058700. ISSN 0195-6108. PMID 17296997}。
+考虑真实值相对于预测值发生了偏差；
+这部分偏差的来源可能是来源于由于系统崩溃而导致的量的下降（或反应时间的增长），也有可能是量自身的差异性引起的。
+以业务量的变化为例，当我们根据某种标准做出判断的时候，会产生四种情况：
+\begin{table}[H]
+	\centering
+	\caption{四种可能的信号-判断状态}
+	\label{tab:sdt-four}
+	\begin{tabular}{|c|c|c|}
+		\hline
+		 & 真实值低于警报值 & 真实值高于警报值 \\
+		\hline
+		异常 & 击中 & 漏报 \\
+		\hline
+		无异常 & 虚报 & 正确否定 \\
+		\hline
+	\end{tabular} \\
+\end{table}
+我们所关心的，是在异常/无异常状态下，真实值低于警报值从而判断为有异常的概率。
+我们将这两个概率命名为击中率 $p_h$ 与虚报率 $p_f$ 。
+\\
+\indent 当我们采用不同警报值的时候，显然，击中率与虚报率会相应发生变化。
+若将这两个变量画在一个坐标图中，我们得到了 ROC 反应曲线。
+为了将检测系统调节至最敏感的状态，我们取到曲线上距离理想情况（即 $p_h = 1, p_f = 0$）最靠近的一点。
+在这种取法下，我们能够获得较高的击中率与较低的虚报率。
+\section{假定}
+我们对于实际情况作出如下假定
 \begin{itemize}
     \item 对于某一时刻 $t$ ，量 $f(t)$ 的分布服从随 $t$ 变化的正态分布 $N(M(t), \sigma^2(t))$ 。
     \item 对于某一时刻 $t$ ，量 $f$ 出现异常，异常值 $\tilde{f}(t)$ 的分布服从随 t 变化的正态分布 $N(\tilde{M}(t), \tilde{\sigma}^2(t))$ 。
     \item 异常情况与正常情况的分布是独立的。
 \end{itemize}
-
-consider given t, M(t) -> M
-
-the stocastic variable $\xi$ describes f , with $\mu$ decribing ~f
-
+\section{警报值 $a$ 的选取}
+\emph{考虑在给定的时刻 $t$ ，上述提到的变量在不引起歧义的情况下略去自变量 $t$ 。}
+\\
+引入随机变量 $\xi$ 与 $\mu$ 来描述正常与异常状态下量 $f$ 与 $\tilde{f}$。
+那么我们已经知道 $\xi$ 与 $\mu$ 服从
 \begin{equation}
 	\label{eqn:det_xi}
 	\xi \sim N(M, \sigma^2)
 \end{equation}
-
 \begin{equation}
 	\label{eqn:det_mu}
 	\mu \sim N(\tilde{M}, \tilde{\sigma}^2)
 \end{equation}
-
-alarm level a
-
-false alarm $p_f(a)$
+引入警报值 $a$ ，可求得虚报率与击中率
 \begin{align}
 	p_f(a) &= P\{\xi < a\} \\
 		&= \Psi(\frac{a-M}{\sigma}) \label{eqn:det-p_f}
 \end{align}
-
-hit $p_h(a)$
 \begin{align}
 	p_h(a) &= P\{\mu < a\} \\
 		&= \Psi(\frac{a-\tilde{M}}{\tilde{\sigma}}) \label{eqn:det-p_h}
 \end{align}
-
-what is psi
+这里的 $\Psi(x)$ 即正态分布的分布函数
 \begin{equation}
 	\label{eqn:psi}
 	\Psi(x) = \int_{-\infty}^{x} \frac{1}{\sqrt{2\pi}}e^{-\frac{t^2}{2}} dt
 \end{equation}
-
-some pictures describing $p_f$ and $p_h$
-
-want to select the best point (of course in terms of $a$) to raise sensitivity
-
-several ways
+\begin{figure}[htbp]
+	\centering
+	\includegraphics[scale=0.6]{pic/tilde-M-tilde-sigma.eps}
+	\caption{不同程度下 ROC 反应曲线的形态}
+    \label{fig:roc}
+\end{figure}
+观察图 \ref{fig:roc} 可见，当 $\textbar M - \tilde{M} \textbar $ 越大， $ \tilde{\sigma} / \sigma $ 越小，ROC 曲线越为敏感。
+\\
+关于检测系统的灵敏度，我们有数种考量标准：取 $a$ 满足
 \begin{enumerate}
-	\item minizes $\sqrt{(p_h - 1)^2 + (p_f - 0)^2}$
-	\item satisfies $p_f + p_h = 1$
-	\item maximizes $p_h - p_f$
-\end{enumerate} 
-
-we use the simpliest way 
+	\item 最小化 $\sqrt{(p_h - 1)^2 + (p_f - 0)^2}$
+	\item 满足 $p_f + p_h = 1$
+	\item 最大化 $p_h - p_f$
+\end{enumerate}
+在这里我们考虑最简单的情形，即求 $p_f + p_h = 1$ 的解。注意到恒等关系 $$\Psi(x) + \Psi(-x) = 1$$ 我们得到
 \begin{equation}
 	\label{eqn:det_a_formula}
 	\frac{a-M}{\sigma} = \frac{a-\tilde{M}}{\tilde{\sigma}}
 \end{equation}
-solve that
+解得
 \begin{equation}
+	\label{eqn:det_a}
 	a = \frac{\tilde{\sigma}M - \sigma \tilde{M}}{\tilde{\sigma} - \sigma}
 \end{equation}
-
+\section{对于结果的分析}
+\subsection{定性分析}
+考察式 \ref{eqn:det_a} ，如果我们改变 $\tilde{\sigma}/\sigma$ ，相应地 $a$ 会有所改变。
+\begin{itemize}
+\item 如果 $\tilde{\sigma}/\sigma$ 较大，那么警报值 $a$ 将趋向于 $M$ 。这个结果的实际意义是，如果异常状态非常不确定，检测系统会比较保守，只有将低于异常值期望的值判为异常。
+\item 如果 $\tilde{\sigma}/\sigma$ 较小，那么警报值 $a$ 将趋向于 $\tilde{M}$ 。这个结果的实际意义是，如果正常状态数据很不稳定，检测系统会比较激进地将低于正常值期望的值判为异常。
+\end{itemize}
+一般来说，异常状态总是较不稳定，因此 $\tilde{\sigma}/\sigma > 1$ ，相应地 $a$ 将更加靠近 $\tilde{M}$ 。
+这与我们直观上的认识是相匹配的。
+\subsection{数值实验}
+表 \ref{tab:test_roc} 是 2 月 10 日的真实响应时间数据减去 SSA 拟合得到的差异结果。
+\begin{table}[htbp]
+	\centering
+	\caption{基于 2 月 10 日真实数据计算的报警值 $a$}
+	\label{tab:test_roc}
+\label{my-label}
+\begin{tabular}{c|cccc|c}
+\hline
+时间段 $i$  & $M$   & $\tilde{M}$ & $\sigma$ & $\tilde{\sigma}$ & $a$    \\
+\hline
+9-23 1   & -0.22 & 51.6        & 2.3     & $4.6^{(*)} $             & 52.04  \\
+23-(9) 2 & 0.024 & 46.3        & 21.7    & 43.4             & 46.252\\
+\hline
+\end{tabular}
+\end{table}\\
+(*) \emph{由于异常数据数量太少，获得的标准差已无意义，故用 $2 \cdot \sigma$ 近似估计。}
 \section{与其他方法的比较分析}
 \section{对方案可靠性的评估}
 \section{不同突变点原因分析}
