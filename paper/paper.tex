@@ -205,7 +205,7 @@ ATM 业务状态随着时间是不断变化的；这种变化不仅仅是发生�
 \indent 通过分析数据，我们发现交易状态关于时间有明显的周期性趋势，但在不同的周期中，也有一些差异。
 要找出异常点，从来理论上来说，就是要找到一个对三个指标进行预测的模型，并将实际值与预测值相比较；
 当误差超过预先设定的阈值时，我们就认为出现了异常点。
-经过比较不同算法的优劣，我们最终采用了SSA算法作为我们的预测算法。
+经过比较不同算法的优劣，我们最终采用了SSA(奇异谱分析)算法作为我们的预测算法。该方法是一种对一维时间序列的主成分分析方法，能够在带噪声的时间序列中有效提取信号信息。SSA的主要目标是将原来的时间序列分解为若干个趋势、震荡或噪声时间序列的和。它将已知的时间序列变形为轨迹矩阵，对其协方差矩阵运用Karhunene-Loeve分解，从而将含有延迟相空间的信息拆解开来，从而提取出趋势等规律。
 \\
 \indent 对于我们研究的这三个指标，我们可以将它们看成是一串时间序列 $F=(f_0, f_1, \cdots, f_{N-1})$ ，其中 $f \in \{B, S, R\}$ 。
 $N$ 为这一时间序列的长度。
@@ -223,7 +223,7 @@ $N$ 为这一时间序列的长度。
 		$L$ & 窗口长度 & \\
 		$N$ & 总样本点数量 & \\
 		$f_i$ & 量 $f$ 在 时间 $t_i$ 处所取的值 & $f \in \{B, S, R\}$ \\
-		$\textbf{X}$ & 轨道矩阵 & \\
+		$\textbf{X}$ & 轨迹矩阵 & \\
 		$d$ & \textbf{X} 的非零奇异值个数 & \\
 		$r$ & \textbf{X} 的主要成分奇异值个数 & \\
 		$a_i$ & LRF 系数 & \\
@@ -232,19 +232,19 @@ $N$ 为这一时间序列的长度。
 \end{table}
 
 \section{重构序列的计算}
-\subsection{轨道矩阵}
+\subsection{轨迹矩阵}
 首先我们按照窗口长度 $L = 1440$ 将时间序列拆为若干依次推后的小段
 \begin{equation}
 	\label{eqn:F_i}
 	F_i = (f_{i-1}, \cdots, f_{i+L-2})^T  (1 \leq i \leq K = N - L + 1)
 \end{equation}
-我们将每个 $F_i$ 重新组合，得到轨道矩阵 $\textbf{X}$
+我们将每个 $F_i$ 重新组合，得到轨迹矩阵 $\textbf{X}$
 \begin{equation}
 	\label{eqn:X}
 	\textbf{X} = (F_1, \cdots, F_K)
 \end{equation}
 \subsection{时间序列的奇异值分解}
-我们对轨道矩阵 $\textbf{X}$ 进行奇异值分解，以得到各个不同的强度对应奇异值的贡献。
+我们对轨迹矩阵 $\textbf{X}$ 进行奇异值分解，以得到各个不同的强度对应奇异值的贡献。
 首先计算
 \begin{equation}
 	\label{eqn:S}
@@ -266,7 +266,7 @@ $N$ 为这一时间序列的长度。
 	\label{eqn:SVD_expanded}
 	\textbf{X} = \Sigma_{i=1}^d \textbf{$X_i$}
 \end{equation}
-这里 $d$ 指轨道矩阵 $\textbf{X}$ 的非零奇异值的个数，代表的是有贡献的分解矩阵的个数，即
+这里 $d$ 指轨迹矩阵 $\textbf{X}$ 的非零奇异值的个数，代表的是有贡献的分解矩阵的个数，即
 \begin{equation}
 	\label{eqn:non-zero-char-d}
 	d = max\{i \textbar \lambda_i > 0\}
@@ -274,7 +274,7 @@ $N$ 为这一时间序列的长度。
 我们选择从大到小的前 $r$ 个奇异值作为主要的贡献项；
 显然 $r < d$ 。
 \subsection{时间序列的重构}
-基于式 \ref{eqn:SVD_expanded} 我们可以得到轨道矩阵 $\textbf{X}$ 的 SVD 分解形式
+基于式 \ref{eqn:SVD_expanded} 我们可以得到轨迹矩阵 $\textbf{X}$ 的 SVD 分解形式
 \begin{equation}
 	\label{eqn:SVD}
 	\textbf{X} = \textbf{U} \Sigma \textbf{V}^T
