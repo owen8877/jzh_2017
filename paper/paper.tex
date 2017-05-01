@@ -73,11 +73,11 @@
 \begin{figure}[htbp]
 	\centering
 	\includegraphics[scale=0.4]{pic/jan-feb-bsr.eps}
-	\label{fig:char_jan_feb_bsr}
-	\caption{}
+	\caption{ATM交易状态变化}
+     \label{fig:char}
 \end{figure}
 ATM 业务状态随着时间是不断变化的；这种变化不仅仅是发生在每一天之内，同时也是存在于相邻两天的差异中。
-通过对图 \ref{fig:char_jan_feb_bsr} 的观察可知，业务状态呈现以天为单位的周期变化，每一天的曲线大致相似但是有所区别。
+通过对图 \ref{fig:char} 的观察可知，业务状态呈现以天为单位的周期变化，每一天的曲线大致相似但是有所区别。
 为了在最少的特征参量下尽可能准确地描述业务状态的变化，我们可以通过将每一天的数据按时间划分成不同的模式。
 对于每一种模式，我们会采用不同的特征参量来描述，这些特征参量在每个时间段内具有一定的稳定性。
 \\
@@ -105,7 +105,7 @@ ATM 业务状态随着时间是不断变化的；这种变化不仅仅是发生�
 通过对数据的分析，总的来说，$B(t)$，$S(t)$，$R(t)$ 对于时间 $t$ 大致呈周期分布，且在每一个周期内的不同时间段会显示出不同的模式。
 为了描述这些模式，我们主要通过中位数 $M$ ，标准差 $\sigma_T^i$ （与带有修正的标准差 $\tilde{\sigma}_T^i$ ） ，斜率 $\vartheta_B^i$ 这些特征参量来表征不同的状态。
 \\
-值得注意的是，我们可以很明显地从图 \ref{fig:char_jan_feb_bsr} 中看出一月份的业务量数据波动是非常大的。
+值得注意的是，我们可以很明显地从图 \ref{fig:char} 中看出一月份的业务量数据波动是非常大的。
 由于一月底春节的影响，银行的业务量呈现与平日不同的模式，对于参数的估计是不利的，因此\emph{下文进行参数计算时选择的是二月至四月的数据}。
 
 \section{业务量的特征参数}
@@ -132,8 +132,8 @@ ATM 业务状态随着时间是不断变化的；这种变化不仅仅是发生�
 \begin{figure}[htbp]
 	\centering
 	\includegraphics[scale=0.4]{pic/feb-1-bsr-pattern.eps}
-	\label{fig:char_feb-1}
-	\caption{}
+	\caption{业务量、成功率、响应时间的典型分布}
+    \label{fig:char_feb-1}
 \end{figure}
 \begin{itemize}
     \item 对于 6 $\sim$ 9 点，是业务量上升阶段，这个时段，平均值的意义不是很明显，这里我们用其上升的速度，也即斜率 $\vartheta_B^1$ 来表征这一时段的特点。
@@ -215,4 +215,4 @@ ATM 业务状态随着时间是不断变化的；这种变化不仅仅是发生�
 \part{方案的优化及完善}
 
 
-\end{document}
+\end{document
