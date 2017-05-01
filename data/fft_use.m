@@ -1,5 +1,5 @@
 data = load('3.mat');
-amount = data.num(:, 3)';
+amount = data.num(:, 5)';
 Fs = 1440;
 T = 1 /Fs;
 L = length(amount);
@@ -19,19 +19,18 @@ for index = 1:length(amount)
     if abs(Y(index)) < 0.3e6
         Y(index) = 0;
     end
-end
-
+en
 figure;
 exp_amount = abs(ifft(Y));
-day = 22;
+day = 27;
 plot(t(day * 1440 + 1:(day + 1) * 1440),exp_amount(day * 1440 + 1:(day + 1) * 1440))
 title('ifft')
 
 figure;
-day = 22;
+day = 27;
 plot(t(day * 1440 + 1:(day + 1) * 1440),amount(day * 1440 + 1:(day + 1) * 1440) - exp_amount(day * 1440 + 1:(day + 1) * 1440))
 title('delta')
 figure;
-day = 22;
+day = 27;
 plot(t(day * 1440 + 1:(day + 1) * 1440),amount(day * 1440 + 1:(day + 1) * 1440))
 title('origin')
